@@ -129,7 +129,7 @@ queue = await store.low_quality_queue("acme")  # worst-first, ready for review/f
 - **Zero required dependencies**; `requests` only for the judge, `asyncpg` only for Postgres.
 - **Degrade, never crash** — missing judge/DB disables a layer, evaluation itself can't take your app down.
 - **Scoring is pure functions** — deterministic, unit-testable, safe to run per-response in prod.
-- **12 test suites ship in the box** — the harness that tests itself.
+- **11 tests ship in the box** — the harness that tests itself.
 
 ## Development
 
