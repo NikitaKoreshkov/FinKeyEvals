@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "finkey-evals"
+version = "0.1.0"
+description = "Dependency-light evaluation for LLM apps: heuristic + LLM-judge scoring, CI harness with JSON cases, quality gate with regeneration, feedback-to-queue loop. RAG, agents, red-team."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "AGPL-3.0-only"
+authors = [{ name = "FinKey" }]
+keywords = ["evals", "llm", "rag", "benchmark", "quality-gate", "red-team", "ci"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Testing",
+]
+dependencies = []
+
+[project.optional-dependencies]
+judge = ["requests>=2.28"]
+pg = ["asyncpg>=0.29"]
+test = ["pytest>=8"]
+
+[project.scripts]
+finkey-evals = "finkey_evals.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/NikitaKoreshkov/FinKeyEvals"
+Repository = "https://github.com/NikitaKoreshkov/FinKeyEvals"
+Issues = "https://github.com/NikitaKoreshkov/FinKeyEvals/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
