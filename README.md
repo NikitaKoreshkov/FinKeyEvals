@@ -41,6 +41,45 @@ scoring code that gates production answers, published standalone.
 | `build_judge_from_env` | one OpenAI-compatible chat call as judge (OpenAI / OpenRouter / Ollama), zero SDK tree |
 | CLI | `finkey-evals run cases.json` → JSON report, exit code for CI |
 
+## Size and surface
+
+| 1 076 | 7 | 9 | 24 | 147 | 0 |
+| --- | --- | --- | --- | --- | --- |
+| lines of Python in `src/` | modules | classes | public functions | lines of tests | required dependencies |
+
+`evaluator.py` (237) · `harness.py` (322) · `feedback.py` (189) · `quality_gate.py`
+(130) · `judge.py` (99) · `__main__.py` (59) · `__init__.py` (40). Optional extras
+are declared, not required: `[judge]` pulls `requests`, `[pg]` pulls `asyncpg`,
+`[test]` pulls `pytest`.
+
+The whole point of that shape is that the tier you run on every response —
+`ResponseEvaluator` with its heuristic scoring — cannot fail because a network call
+failed, because it makes none.
+
+## How the scoring actually works
+
+The heuristic tier is not a mystery blend — it is three token-set measures over the
+answer, combined with fixed weights:
+
+```
+overall = 0.30 · context_relevance        # Jaccard(question tokens, context tokens)
+        + 0.45 · answer_faithfulness      # can the answer be traced to the contexts?
+        + 0.25 · answer_groundedness      # token coverage of the answer by the contexts
+```
+
+`0.45` on faithfulness is deliberate: in a RAG answer, an unsupported sentence is a
+worse failure than an answer that missed part of the retrieved context.
+`EvalResult.passed(threshold=0.45)` is the ship/block line, and `QualityGate` uses
+the same default with `max_retries=2` — regenerate twice, then stream the best
+effort with an eval header so the caller can see what happened.
+
+The harness layer scores a declarative `EvalCase` on six axes:
+`context_precision`, `context_recall`, `faithfulness`, `answer_relevancy`,
+`tool_correctness` and the aggregate `score_case`, with `expect_any` needles,
+`forbid_any` leak checks and `expected_tools` coming from the JSON file.
+`default_smoke_suite()` ships a built-in suite so `python -m finkey_evals smoke`
+works on a fresh install with no configuration.
+
 ## 60-second tour
 
 ```bash
